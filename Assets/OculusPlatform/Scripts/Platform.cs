@@ -666,6 +666,69 @@ namespace Oculus.Platform
       return null;
     }
 
+    /// Launches a different application in the user's library. If the user does
+    /// not have that application installed, they will be taken to that app's page
+    /// in the Oculus Store
+    /// \param appID The ID of the app to launch
+    /// \param deeplink_options Additional configuration for this requests. Optional.
+    ///
+    public static Request<string> LaunchOtherApp(UInt64 appID, ApplicationOptions deeplink_options = null)
+    {
+      if (Core.IsInitialized())
+      {
+        return new Request<string>(CAPI.ovr_Application_LaunchOtherApp(appID, (IntPtr)deeplink_options));
+      }
+
+      return null;
+    }
+
+  }
+
+  public static partial class AssetFile
+  {
+    /// Removes an previously installed asset file from the device by its ID.
+    /// Returns an object containing the asset file ID and a success flag.
+    /// \param assetFileID The asset file ID
+    ///
+    public static Request<Models.AssetFileDeleteResult> Delete(UInt64 assetFileID)
+    {
+      if (Core.IsInitialized())
+      {
+        return new Request<Models.AssetFileDeleteResult>(CAPI.ovr_AssetFile_Delete(assetFileID));
+      }
+
+      return null;
+    }
+
+    /// Downloads an asset file by its ID on demand. Returns an object containing
+    /// filepath on the file system. Sends periodic
+    /// MessageType.Notification_AssetFile_DownloadUpdate to track the downloads.
+    /// \param assetFileID The asset file ID
+    ///
+    public static Request<Models.AssetFileDownloadResult> Download(UInt64 assetFileID)
+    {
+      if (Core.IsInitialized())
+      {
+        return new Request<Models.AssetFileDownloadResult>(CAPI.ovr_AssetFile_Download(assetFileID));
+      }
+
+      return null;
+    }
+
+    /// Cancels a previously spawned download request for an asset file by its ID.
+    /// Returns an object containing asset file ID, and the success flag.
+    /// \param assetFileID The asset file ID
+    ///
+    public static Request<Models.AssetFileDownloadCancelResult> DownloadCancel(UInt64 assetFileID)
+    {
+      if (Core.IsInitialized())
+      {
+        return new Request<Models.AssetFileDownloadCancelResult>(CAPI.ovr_AssetFile_DownloadCancel(assetFileID));
+      }
+
+      return null;
+    }
+
   }
 
   public static partial class Avatar

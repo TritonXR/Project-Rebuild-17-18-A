@@ -76,6 +76,10 @@ namespace Oculus.Platform
       ApplicationLifecycle_GetSessionKey                  = 0x3AAF591D,
       ApplicationLifecycle_RegisterSessionKey             = 0x4DB6AFF8,
       Application_GetVersion                              = 0x68670A0E,
+      Application_LaunchOtherApp                          = 0x54E2D1F8,
+      AssetFile_Delete                                    = 0x6D5D7886,
+      AssetFile_Download                                  = 0x11449FC5,
+      AssetFile_DownloadCancel                            = 0x080AD3C7,
       CloudStorage_Delete                                 = 0x28DA456D,
       CloudStorage_GetNextCloudStorageMetadataArrayPage   = 0x5C07A2EF,
       CloudStorage_Load                                   = 0x40846B41,
@@ -156,6 +160,14 @@ namespace Oculus.Platform
       User_GetUserProof                                   = 0x22810483,
       User_LaunchProfile                                  = 0x0A397297,
       Voip_SetSystemVoipSuppressed                        = 0x453FC9AA,
+
+      /// Sent when a launch intent is received (for both cold and warm starts). The
+      /// payload is the type of the intent. ApplicationLifecycle.GetLaunchDetails()
+      /// should be called to get the other details.
+      Notification_ApplicationLifecycle_LaunchIntentChanged = 0x04B34CA3,
+
+      /// Sent to indicate download progress for asset files.
+      Notification_AssetFile_DownloadUpdate = 0x2FDD0CCD,
 
       /// Sent to indicate that more data has been read or an error occured.
       Notification_HTTP_Transfer = 0x7DD46E2F,
@@ -245,6 +257,10 @@ namespace Oculus.Platform
     public virtual AchievementProgressList GetAchievementProgressList() { return null; }
     public virtual AchievementUpdate GetAchievementUpdate() { return null; }
     public virtual ApplicationVersion GetApplicationVersion() { return null; }
+    public virtual AssetFileDeleteResult GetAssetFileDeleteResult() { return null; }
+    public virtual AssetFileDownloadCancelResult GetAssetFileDownloadCancelResult() { return null; }
+    public virtual AssetFileDownloadResult GetAssetFileDownloadResult() { return null; }
+    public virtual AssetFileDownloadUpdate GetAssetFileDownloadUpdate() { return null; }
     public virtual CloudStorageConflictMetadata GetCloudStorageConflictMetadata() { return null; }
     public virtual CloudStorageData GetCloudStorageData() { return null; }
     public virtual CloudStorageMetadata GetCloudStorageMetadata() { return null; }
@@ -316,6 +332,22 @@ namespace Oculus.Platform
 
         case Message.MessageType.Application_GetVersion:
           message = new MessageWithApplicationVersion(messageHandle);
+          break;
+
+        case Message.MessageType.AssetFile_Delete:
+          message = new MessageWithAssetFileDeleteResult(messageHandle);
+          break;
+
+        case Message.MessageType.AssetFile_DownloadCancel:
+          message = new MessageWithAssetFileDownloadCancelResult(messageHandle);
+          break;
+
+        case Message.MessageType.AssetFile_Download:
+          message = new MessageWithAssetFileDownloadResult(messageHandle);
+          break;
+
+        case Message.MessageType.Notification_AssetFile_DownloadUpdate:
+          message = new MessageWithAssetFileDownloadUpdate(messageHandle);
           break;
 
         case Message.MessageType.CloudStorage_LoadConflictMetadata:
@@ -476,6 +508,8 @@ namespace Oculus.Platform
           break;
 
         case Message.MessageType.ApplicationLifecycle_GetSessionKey:
+        case Message.MessageType.Application_LaunchOtherApp:
+        case Message.MessageType.Notification_ApplicationLifecycle_LaunchIntentChanged:
         case Message.MessageType.Notification_Room_InviteAccepted:
         case Message.MessageType.User_GetAccessToken:
           message = new MessageWithString(messageHandle);
@@ -616,6 +650,54 @@ namespace Oculus.Platform
       var msg = CAPI.ovr_Message_GetNativeMessage(c_message);
       var obj = CAPI.ovr_Message_GetApplicationVersion(msg);
       return new ApplicationVersion(obj);
+    }
+
+  }
+  public class MessageWithAssetFileDeleteResult : Message<AssetFileDeleteResult>
+  {
+    public MessageWithAssetFileDeleteResult(IntPtr c_message) : base(c_message) { }
+    public override AssetFileDeleteResult GetAssetFileDeleteResult() { return Data; }
+    protected override AssetFileDeleteResult GetDataFromMessage(IntPtr c_message)
+    {
+      var msg = CAPI.ovr_Message_GetNativeMessage(c_message);
+      var obj = CAPI.ovr_Message_GetAssetFileDeleteResult(msg);
+      return new AssetFileDeleteResult(obj);
+    }
+
+  }
+  public class MessageWithAssetFileDownloadCancelResult : Message<AssetFileDownloadCancelResult>
+  {
+    public MessageWithAssetFileDownloadCancelResult(IntPtr c_message) : base(c_message) { }
+    public override AssetFileDownloadCancelResult GetAssetFileDownloadCancelResult() { return Data; }
+    protected override AssetFileDownloadCancelResult GetDataFromMessage(IntPtr c_message)
+    {
+      var msg = CAPI.ovr_Message_GetNativeMessage(c_message);
+      var obj = CAPI.ovr_Message_GetAssetFileDownloadCancelResult(msg);
+      return new AssetFileDownloadCancelResult(obj);
+    }
+
+  }
+  public class MessageWithAssetFileDownloadResult : Message<AssetFileDownloadResult>
+  {
+    public MessageWithAssetFileDownloadResult(IntPtr c_message) : base(c_message) { }
+    public override AssetFileDownloadResult GetAssetFileDownloadResult() { return Data; }
+    protected override AssetFileDownloadResult GetDataFromMessage(IntPtr c_message)
+    {
+      var msg = CAPI.ovr_Message_GetNativeMessage(c_message);
+      var obj = CAPI.ovr_Message_GetAssetFileDownloadResult(msg);
+      return new AssetFileDownloadResult(obj);
+    }
+
+  }
+  public class MessageWithAssetFileDownloadUpdate : Message<AssetFileDownloadUpdate>
+  {
+    public MessageWithAssetFileDownloadUpdate(IntPtr c_message) : base(c_message) { }
+    public override AssetFileDownloadUpdate GetAssetFileDownloadUpdate() { return Data; }
+    protected override AssetFileDownloadUpdate GetDataFromMessage(IntPtr c_message)
+    {
+      var msg = CAPI.ovr_Message_GetNativeMessage(c_message);
+      var obj = CAPI.ovr_Message_GetAssetFileDownloadUpdate(msg);
+      return new AssetFileDownloadUpdate(obj);
     }
 
   }
