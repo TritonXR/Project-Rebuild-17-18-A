@@ -31,6 +31,11 @@ public class DrawingController : MySingleton<DrawingController> {
     private Color color = Color.red;
 
     /// <summary>
+    /// Reference to pen display controller.
+    /// </summary>
+    [SerializeField]private PenDisplayController penDisplay;
+
+    /// <summary>
     /// Flags whether drawing has been started.
     /// </summary>
     private bool isDrawingStarted = false;
@@ -72,6 +77,8 @@ public class DrawingController : MySingleton<DrawingController> {
             currentDrawing.startColor = color;
             currentDrawing.endColor = color;
         }
+
+        if (penDisplay != null) penDisplay.SetColor(color);
     }
 
     public void StartDrawing()
