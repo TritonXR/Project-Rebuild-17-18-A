@@ -1,4 +1,6 @@
-﻿Shader "Oculus/Cubemap Blit" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Oculus/Cubemap Blit" {
     Properties{
         _MainTex("Base (RGB) Trans (A)", CUBE) = "white" {}
         _face("Face", Int) = 0

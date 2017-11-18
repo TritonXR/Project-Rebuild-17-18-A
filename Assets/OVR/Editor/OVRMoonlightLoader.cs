@@ -36,21 +36,48 @@ class OVRMoonlightLoader
 	static void ToggleUtilities()
 	{
 		setPrefsForUtilities = !setPrefsForUtilities;
+		Menu.SetChecked(menuItemName, setPrefsForUtilities);
+
+		int newValue = (setPrefsForUtilities) ? 1 : 0;
+		PlayerPrefs.SetInt(prefName, newValue);
+		PlayerPrefs.Save();
+
+		Debug.Log("Using required project settings: " + setPrefsForUtilities);
 	}
 
     static OVRMoonlightLoader()
 	{
-		EditorApplication.delayCall += EnforceInputManagerBindings;
-#if UNITY_ANDROID
-		EditorApplication.delayCall += EnforceOSIG;
-#endif
-		EditorApplication.update += EnforceBundleId;
-		EditorApplication.update += EnforceVRSupport;
-		EditorApplication.update += EnforceInstallLocation;
-		EditorApplication.update += EnforcePlayerPrefs;
+		EditorApplication.delayCall += OnDelayCall;
+		EditorApplication.update += OnUpdate;
+	}
 
+	static void OnDelayCall()
+	{
 		setPrefsForUtilities = PlayerPrefs.GetInt(prefName, 1) != 0;
+		Menu.SetChecked(menuItemName, setPrefsForUtilities);
 
+		if (!setPrefsForUtilities)
+			return;
+		
+		EnforceAndroidSettings();
+		EnforceInputManagerBindings();
+#if UNITY_ANDROID
+		EnforceOSIG();
+#endif
+	}
+
+	static void OnUpdate()
+	{
+		if (!setPrefsForUtilities)
+			return;
+		
+		EnforceBundleId();
+		EnforceVRSupport();
+		EnforceInstallLocation();
+	}
+
+	static void EnforceAndroidSettings()
+	{
 		if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
 			return;
 
@@ -88,9 +115,6 @@ class OVRMoonlightLoader
 
 	static void EnforceVRSupport()
 	{
-		if (!setPrefsForUtilities)
-			return;
-		
 		if (PlayerSettings.virtualRealitySupported)
 			return;
 		
@@ -117,9 +141,6 @@ class OVRMoonlightLoader
 
 	private static void EnforceBundleId()
 	{
-		if (!setPrefsForUtilities)
-			return;
-		
 		if (!PlayerSettings.virtualRealitySupported)
 			return;
 
@@ -142,17 +163,12 @@ class OVRMoonlightLoader
 
 	private static void EnforceInstallLocation()
 	{
-		if (!setPrefsForUtilities)
-			return;
-		
-		PlayerSettings.Android.preferredInstallLocation = AndroidPreferredInstallLocation.Auto;
+		if (PlayerSettings.Android.preferredInstallLocation != AndroidPreferredInstallLocation.Auto)
+			PlayerSettings.Android.preferredInstallLocation = AndroidPreferredInstallLocation.Auto;
 	}
 
 	private static void EnforceInputManagerBindings()
 	{
-		if (!setPrefsForUtilities)
-			return;
-		
 		try
 		{
 			BindAxis(new Axis() { name = "Oculus_GearVR_LThumbstickX",  axis =  0,               });
@@ -172,9 +188,6 @@ class OVRMoonlightLoader
 
 	private static void EnforceOSIG()
 	{
-		if (!setPrefsForUtilities)
-			return;
-		
 		// Don't bug the user in play mode.
 		if (Application.isPlaying)
 			return;
@@ -196,20 +209,6 @@ class OVRMoonlightLoader
 
 		if (!foundPossibleOsig)
 			Debug.LogWarning("Missing Gear VR OSIG at Assets/Plugins/Android/assets. Please see https://dashboard.oculus.com/tools/osig-generator");
-	}
-
-	private static void EnforcePlayerPrefs()
-	{
-		int newValue = (setPrefsForUtilities) ? 1 : 0;
-		int oldValue = PlayerPrefs.GetInt(prefName);
-
-		if (newValue != oldValue)
-		{
-			PlayerPrefs.SetInt (prefName, newValue);
-			PlayerPrefs.Save ();
-		}
-
-		Menu.SetChecked(menuItemName, setPrefsForUtilities);
 	}
 
 	private class Axis
