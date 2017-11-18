@@ -26,6 +26,11 @@ public class DrawingController : MySingleton<DrawingController> {
     private List<Vector3> points = new List<Vector3>();
 
     /// <summary>
+    /// What color to draw in.
+    /// </summary>
+    private Color color = Color.red;
+
+    /// <summary>
     /// Flags whether drawing has been started.
     /// </summary>
     private bool isDrawingStarted = false;
@@ -44,11 +49,38 @@ public class DrawingController : MySingleton<DrawingController> {
         };
     }
 
+    public void SetColor(string colName)
+    {
+        switch (colName)
+        {
+            case "red":
+                color = Color.red;
+                break;
+            case "green":
+                color = Color.green;
+                break;
+            case "blue":
+                color = Color.blue;
+                break;
+            default:
+                color = Color.white;
+                break;
+        }
+
+        if (currentDrawing != null)
+        {
+            currentDrawing.startColor = color;
+            currentDrawing.endColor = color;
+        }
+    }
+
     public void StartDrawing()
     {
         isDrawingStarted = true;
         points.Clear();
         currentDrawing = Instantiate(drawingPrefab, this.transform).GetComponent<LineRenderer>();
+        currentDrawing.startColor = color;
+        currentDrawing.endColor = color;
     }
 
     public void FinishDrawing()
