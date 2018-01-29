@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class DrawingController : MonoBehaviour {
 
     public Transform rightControllerTransform;
     [SerializeField] private LineRenderer lineRenderer;
+    public GameObject drawingPrefab;
     private bool isDrawing;
     private List<Vector3> points = new List<Vector3>();
+    private List<GameObject> drawings = new List<GameObject>();
 
     void Start()
     {
@@ -33,6 +36,14 @@ public class DrawingController : MonoBehaviour {
         {
             StopDrawing();
         }
+        if (OVRInput.GetDown(OVRInput.RawButton.A))
+        {
+            decreaseWidth();
+        }
+        if (OVRInput.GetDown(OVRInput.RawButton.B))
+        {
+            increaseWidth();
+        }
 
     }
 
@@ -45,14 +56,35 @@ public class DrawingController : MonoBehaviour {
 
     public void StartDrawing()
     {
+        lineRenderer = Instantiate(drawingPrefab, this.transform).GetComponent<LineRenderer>();
         isDrawing = true;
         points.Clear();
-
+        
     }
 
     public void StopDrawing()
     {
         isDrawing = false;
+
+    }
+
+    public void increaseWidth()
+    {
+        if(lineRenderer.widthMultiplier < 1)
+        {
+          
+            lineRenderer.widthMultiplier += (float).005;
+        }
+      
+    }
+
+    public void decreaseWidth()
+    {
+        if (lineRenderer.widthMultiplier > .001)
+        {
+          
+            lineRenderer.widthMultiplier -= (float).005;
+        }
     }
 
 }
