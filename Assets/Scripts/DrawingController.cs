@@ -8,8 +8,12 @@ public class DrawingController : MonoBehaviour {
     public GameObject drawingPrefab;
 
     private LineRenderer _currentLineRenderer;
+    private float _currentLineWidth = 0.01f;
+
     private bool isDrawing;
     private List<Vector3> points = new List<Vector3>();
+
+
 	// Use this for initialization
 	void Start () {
    
@@ -41,6 +45,16 @@ public class DrawingController : MonoBehaviour {
             StopDrawing();
         }
 
+        if (OVRInput.Get(OVRInput.RawButton.RThumbstick))
+        {
+            float horizontalVal = OVRInput.Get(OVRInput.RawAxis2D.RThumbstick).x;
+            //Maps from (-1.0, 1.0) to (0.002, 0.052) 
+            float mappedVal = (horizontalVal + 1f) / 2.0f * 0.05f+0.002f;
+            _currentLineWidth = mappedVal;
+
+            FindObjectOfType<PenTipDisplayController>().SetPenTipWidth(mappedVal);
+        }
+
         if (isDrawing)
         {
             addPoint(rightControllerTransform.position);
@@ -58,6 +72,8 @@ public class DrawingController : MonoBehaviour {
     {
         //Create a new line renderer that comes with the drawing prefab.
         _currentLineRenderer = Instantiate(drawingPrefab, this.transform).GetComponent<LineRenderer>();
+        _currentLineRenderer.startWidth = _currentLineWidth;
+        _currentLineRenderer.endWidth = _currentLineWidth;
 
         isDrawing = true;
         points.Clear();
@@ -66,5 +82,10 @@ public class DrawingController : MonoBehaviour {
     public void StopDrawing()
     {
         isDrawing = false;
+    }
+
+    public void SetLineWidth(float width)
+    {
+        _currentLineWidth = width;
     }
 }
