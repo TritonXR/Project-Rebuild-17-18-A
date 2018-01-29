@@ -5,13 +5,15 @@ using UnityEngine;
 public class DrawingController : MonoBehaviour {
 
     public Transform rightControllerTransform;
-    [SerializeField]private LineRenderer lineRenderer;
+    public GameObject drawingPrefab;
+
+    private LineRenderer _currentLineRenderer;
     private bool isDrawing;
     private List<Vector3> points = new List<Vector3>();
 	// Use this for initialization
 	void Start () {
    
-        if (lineRenderer != null)
+        if (_currentLineRenderer != null)
         {
             Debug.Log("Found line renderer");
         }
@@ -48,12 +50,15 @@ public class DrawingController : MonoBehaviour {
     private void addPoint(Vector3 point)
     {
         points.Add(point);
-        lineRenderer.positionCount = points.Count;
-        lineRenderer.SetPositions(points.ToArray());
+        _currentLineRenderer.positionCount = points.Count;
+        _currentLineRenderer.SetPositions(points.ToArray());
     }
 
     public void StartDrawing()
     {
+        //Create a new line renderer that comes with the drawing prefab.
+        _currentLineRenderer = Instantiate(drawingPrefab, this.transform).GetComponent<LineRenderer>();
+
         isDrawing = true;
         points.Clear();
 
