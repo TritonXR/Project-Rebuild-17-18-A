@@ -1,8 +1,11 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿
+
 using System;
-using System.Collections.Generic;
-using Oculus.Avatar;
+using UnityEngine;
+using UnityEngine.VR
+using UnityEngine.XR.WSA.Input;
+//using UnityEngine.XR.InputTracking;
+
 
 public class OvrAvatarLocalDriver : OvrAvatarDriver {
 
@@ -97,5 +100,10 @@ public class OvrAvatarLocalDriver : OvrAvatarDriver {
     {
         CalculateCurrentPose();
         UpdateTransformsFromPose(sdkAvatar);
+    }
+
+    public override void UpdateTransforms(IntPtr sdkAvatar)
+    {
+        throw new NotImplementedException();
     }
 }
